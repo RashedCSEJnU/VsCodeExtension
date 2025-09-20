@@ -1,0 +1,63 @@
+{
+  "name": "tizen",
+  "displayName": "Tizen",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "tizen.showPanel",
+        "title": "Show Tizen Panel"
+      }
+    ],
+    "views": {
+      "panel": [
+        {
+          "id": "tizenPanel",
+          "name": "Tizen",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "webpack --mode production",
+    "compile": "webpack --mode development",
+    "watch": "webpack --mode development --watch",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.104.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.0",
+    "ts-loader": "^9.4.0",
+    "css-loader": "^6.8.0",
+    "style-loader": "^3.3.0"
+  }
+}

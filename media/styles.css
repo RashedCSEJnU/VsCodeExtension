@@ -1,0 +1,114 @@
+/* Global styles for the Tizen extension */
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Enhance the table styling */
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--vscode-font-size);
+}
+
+.table-container th {
+  position: sticky;
+  top: 0;
+  background: var(--vscode-editor-background);
+  z-index: 1;
+}
+
+.table-container td {
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+/* Action buttons */
+.icon-button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 14px;
+  transition: background-color 0.1s ease;
+}
+
+.icon-button:hover {
+  background: var(--vscode-toolbar-hoverBackground);
+}
+
+/* Form styling improvements */
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-actions {
+  border-top: 1px solid var(--vscode-panel-border);
+  padding-top: 16px;
+}
+
+/* Navigation improvements */
+.navigation {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Details view improvements */
+.details-container {
+  max-width: 600px;
+}
+
+.details-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--vscode-panel-border);
+}
+
+.details-item:last-child {
+  border-bottom: none;
+}
+
+.details-item strong {
+  display: inline-block;
+  min-width: 100px;
+  margin-right: 12px;
+}
+
+/* Create button styling */
+.create-button-container {
+  display: flex;
+  justify-content: flex-start;
+  border-top: 1px solid var(--vscode-panel-border);
+  background: var(--vscode-editor-background);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .table-container {
+    font-size: 12px;
+  }
+
+  .icon-button {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+  }
+}
