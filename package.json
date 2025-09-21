@@ -20,8 +20,17 @@
         "title": "Show Tizen Panel"
       }
     ],
-    "views": {
+    "viewsContainers": {
       "panel": [
+        {
+          "id": "tizenContainer",
+          "title": "Tizen",
+          "icon": "resources/tizen.svg"
+        }
+      ]
+    },
+    "views": {
+      "tizenContainer": [
         {
           "id": "tizenPanel",
           "name": "Tizen",

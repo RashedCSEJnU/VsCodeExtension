@@ -8,28 +8,71 @@ import { CreateForm } from "./components/CreateForm";
 // Declare vscode API
 declare const vscode: any;
 
-export const App: React.FC = () => {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("React Error Boundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{ padding: "20px", color: "var(--vscode-errorForeground)" }}
+        >
+          <h3>Something went wrong in the Tizen app</h3>
+          <p>Error: {this.state.error?.message}</p>
+          <p>Check the Debug Console for more details.</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+const AppContent: React.FC = () => {
+  console.log("AppContent component initializing");
+
   const [entries, setEntries] = useState<Entry[]>([]);
   const [currentView, setCurrentView] = useState<ViewType>("table");
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   useEffect(() => {
+    console.log("AppContent useEffect running");
+    // Check if vscode API is available
+    if (typeof vscode === "undefined") {
+      console.error("VS Code API not available");
+      return;
+    }
+
+    console.log("Requesting initial data from extension");
     // Request initial data from extension
     vscode.postMessage({ type: "getData" });
 
     // Listen for messages from the extension
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
+      console.log("Received message from extension:", message);
 
       switch (message.type) {
         case "dataUpdate":
           setEntries(message.data);
           break;
         case "entryCreated":
-          setEntries((prev) => [
-            ...prev,
-            { ...message.data, id: Date.now().toString() },
-          ]);
+          console.log("Adding new entry to state:", message.data);
+          setEntries((prev) => [...prev, message.data]);
           setCurrentView("table");
           break;
         case "entryUpdated":
@@ -74,12 +117,17 @@ export const App: React.FC = () => {
   };
 
   const handleSave = (data: Partial<Entry>) => {
+    console.log("handleSave called with:", { data, currentView });
+
     if (currentView === "edit" && selectedEntry) {
+      const updateData = { ...selectedEntry, ...data };
+      console.log("Sending update message:", updateData);
       vscode.postMessage({
         type: "updateEntry",
-        data: { ...selectedEntry, ...data },
+        data: updateData,
       });
     } else if (currentView === "create") {
+      console.log("Sending create message:", data);
       vscode.postMessage({
         type: "createEntry",
         data,
@@ -119,5 +167,21 @@ export const App: React.FC = () => {
     }
   };
 
+  console.log("App rendering with:", {
+    entriesCount: entries.length,
+    currentView,
+    selectedEntry: selectedEntry?.name,
+  });
+
   return <div className="app">{renderContent()}</div>;
+};
+
+export const App: React.FC = () => {
+  console.log("App component loaded");
+
+  return (
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
+  );
 };

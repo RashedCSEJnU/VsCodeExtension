@@ -15,10 +15,10 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
-			"preLaunchTask": "npm: watch"
+			"preLaunchTask": "npm: compile"
 		},
 		{
-			"name": "Run Extension (Compile Only)",
+			"name": "Run Extension (Watch Mode)",
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
@@ -27,7 +27,7 @@
 			"outFiles": [
 				"${workspaceFolder}/out/**/*.js"
 			],
-			"preLaunchTask": "npm: compile"
+			"preLaunchTask": "npm: watch"
 		}
 	]
 }

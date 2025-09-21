@@ -15,17 +15,23 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
+    console.log("Resolving Tizen webview view");
+
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
       localResourceRoots: [this._extensionUri],
     };
 
+    webviewView.title = "Tizen";
+    webviewView.description = "Tizen Panel";
+
     webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
     // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(
       (message) => {
+        console.log("Extension received message:", message);
         switch (message.type) {
           case "getData":
             // Send initial data to webview
@@ -36,16 +42,21 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
             break;
           case "createEntry":
             // Handle create entry
+            console.log("Processing createEntry with data:", message.data);
             const newEntry = {
               ...message.data,
               id: Date.now().toString(),
             };
             this._entries.push(newEntry);
             console.log("Created entry:", newEntry);
-            webviewView.webview.postMessage({
+            console.log("Total entries now:", this._entries.length);
+
+            const responseMessage = {
               type: "entryCreated",
               data: newEntry,
-            });
+            };
+            console.log("Sending response message:", responseMessage);
+            webviewView.webview.postMessage(responseMessage);
             break;
           case "updateEntry":
             // Handle update entry
@@ -101,11 +112,18 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
 
+    console.log("Script URI:", scriptUri.toString());
+    console.log("Style URIs:", {
+      reset: styleResetUri.toString(),
+      vscode: styleVSCodeUri.toString(),
+      main: styleMainUri.toString(),
+    });
+
     return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https:;">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
@@ -113,7 +131,23 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
 				<title>Tizen Panel</title>
 			</head>
 			<body>
-				<div id="root"></div>
+				<div id="root">
+					<div style="padding: 20px; text-align: center;">
+						<h3>Loading Tizen Panel...</h3>
+						<p>If this message persists, check the Debug Console for errors.</p>
+					</div>
+				</div>
+				<script nonce="${nonce}">
+					console.log('Tizen webview script loading...');
+					// Ensure VS Code API is available
+					const vscode = acquireVsCodeApi();
+					window.vscode = vscode;
+					console.log('VS Code API acquired:', !!vscode);
+					
+					window.addEventListener('error', function(e) {
+						console.error('Webview error:', e.error);
+					});
+				</script>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
 			</html>`;

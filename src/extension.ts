@@ -15,20 +15,28 @@ export function activate(context: vscode.ExtensionContext) {
   // Register the command to show the panel
   const showPanelCommand = vscode.commands.registerCommand(
     "tizen.showPanel",
-    () => {
-      // Show the panel area first
-      vscode.commands.executeCommand("workbench.panel.focus");
-      // Focus the specific panel
-      vscode.commands.executeCommand("tizenPanel.focus");
+    async () => {
+      try {
+        // First reveal the container view
+        await vscode.commands.executeCommand(
+          "workbench.view.extension.tizenContainer"
+        );
+
+        // Then focus on the specific panel
+        await vscode.commands.executeCommand("tizenPanel.focus");
+
+        vscode.window.showInformationMessage("Tizen panel is now visible.");
+      } catch (error) {
+        console.error("Error showing Tizen panel:", error);
+        vscode.window.showErrorMessage(`Error showing Tizen panel: ${error}`);
+      }
     }
   );
 
   context.subscriptions.push(showPanelCommand);
 
-  // Show a message when extension is activated
-  vscode.window.showInformationMessage(
-    "Tizen extension activated! Look for the Tizen tab in the bottom panel."
-  );
+  // Run the command to show the panel on activation
+  vscode.commands.executeCommand("tizen.showPanel");
 }
 
 export function deactivate() {}
