@@ -1,7 +1,7 @@
 {
   "name": "tizen",
   "displayName": "Tizen",
-  "description": "",
+  "description": "A VS Code extension that adds a custom Tizen panel for managing entries with full CRUD operations.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.104.0"

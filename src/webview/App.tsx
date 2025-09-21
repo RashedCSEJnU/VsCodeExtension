@@ -43,35 +43,29 @@ class ErrorBoundary extends React.Component<
 }
 
 const AppContent: React.FC = () => {
-  console.log("AppContent component initializing");
-
   const [entries, setEntries] = useState<Entry[]>([]);
   const [currentView, setCurrentView] = useState<ViewType>("table");
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   useEffect(() => {
-    console.log("AppContent useEffect running");
     // Check if vscode API is available
     if (typeof vscode === "undefined") {
       console.error("VS Code API not available");
       return;
     }
 
-    console.log("Requesting initial data from extension");
     // Request initial data from extension
     vscode.postMessage({ type: "getData" });
 
     // Listen for messages from the extension
     const messageHandler = (event: MessageEvent) => {
       const message = event.data;
-      console.log("Received message from extension:", message);
 
       switch (message.type) {
         case "dataUpdate":
           setEntries(message.data);
           break;
         case "entryCreated":
-          console.log("Adding new entry to state:", message.data);
           setEntries((prev) => [...prev, message.data]);
           setCurrentView("table");
           break;
@@ -117,17 +111,13 @@ const AppContent: React.FC = () => {
   };
 
   const handleSave = (data: Partial<Entry>) => {
-    console.log("handleSave called with:", { data, currentView });
-
     if (currentView === "edit" && selectedEntry) {
       const updateData = { ...selectedEntry, ...data };
-      console.log("Sending update message:", updateData);
       vscode.postMessage({
         type: "updateEntry",
         data: updateData,
       });
     } else if (currentView === "create") {
-      console.log("Sending create message:", data);
       vscode.postMessage({
         type: "createEntry",
         data,
@@ -167,18 +157,10 @@ const AppContent: React.FC = () => {
     }
   };
 
-  console.log("App rendering with:", {
-    entriesCount: entries.length,
-    currentView,
-    selectedEntry: selectedEntry?.name,
-  });
-
   return <div className="app">{renderContent()}</div>;
 };
 
 export const App: React.FC = () => {
-  console.log("App component loaded");
-
   return (
     <ErrorBoundary>
       <AppContent />

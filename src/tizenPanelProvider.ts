@@ -15,8 +15,6 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
-    console.log("Resolving Tizen webview view");
-
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
@@ -31,7 +29,6 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
     // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(
       (message) => {
-        console.log("Extension received message:", message);
         switch (message.type) {
           case "getData":
             // Send initial data to webview
@@ -42,21 +39,15 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
             break;
           case "createEntry":
             // Handle create entry
-            console.log("Processing createEntry with data:", message.data);
             const newEntry = {
               ...message.data,
               id: Date.now().toString(),
             };
             this._entries.push(newEntry);
-            console.log("Created entry:", newEntry);
-            console.log("Total entries now:", this._entries.length);
-
-            const responseMessage = {
+            webviewView.webview.postMessage({
               type: "entryCreated",
               data: newEntry,
-            };
-            console.log("Sending response message:", responseMessage);
-            webviewView.webview.postMessage(responseMessage);
+            });
             break;
           case "updateEntry":
             // Handle update entry
@@ -66,7 +57,6 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
             );
             if (updateIndex !== -1) {
               this._entries[updateIndex] = updatedEntry;
-              console.log("Updated entry:", updatedEntry);
               webviewView.webview.postMessage({
                 type: "entryUpdated",
                 data: updatedEntry,
@@ -79,7 +69,6 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
             this._entries = this._entries.filter(
               (entry) => entry.id !== deleteId
             );
-            console.log("Deleted entry with ID:", deleteId);
             webviewView.webview.postMessage({
               type: "entryDeleted",
               id: deleteId,
@@ -112,13 +101,6 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
     // Use a nonce to only allow a specific script to be run.
     const nonce = getNonce();
 
-    console.log("Script URI:", scriptUri.toString());
-    console.log("Style URIs:", {
-      reset: styleResetUri.toString(),
-      vscode: styleVSCodeUri.toString(),
-      main: styleMainUri.toString(),
-    });
-
     return `<!DOCTYPE html>
 			<html lang="en">
 			<head>
@@ -138,15 +120,9 @@ export class TizenPanelProvider implements vscode.WebviewViewProvider {
 					</div>
 				</div>
 				<script nonce="${nonce}">
-					console.log('Tizen webview script loading...');
 					// Ensure VS Code API is available
 					const vscode = acquireVsCodeApi();
 					window.vscode = vscode;
-					console.log('VS Code API acquired:', !!vscode);
-					
-					window.addEventListener('error', function(e) {
-						console.error('Webview error:', e.error);
-					});
 				</script>
 				<script nonce="${nonce}" src="${scriptUri}"></script>
 			</body>
